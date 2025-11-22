@@ -10,6 +10,9 @@ PLAY HERE: https://cosmic4445.github.io/Tower-Defence/
 > [!WARNING]
 > Please credit me when using code and publishing it please and thank you!>
 
+> [!WARNING]
+> MULTIPLAYER ONLY WORKS IF YOU ARE ON THE SAME NETWORK AS SOMEONE! RECOMMENDED TO PLAY AT SCHOOL OR SMTH
+
 > [!TIP]
 > Bosses spawn every 10 waves be prepared.
 
