@@ -16,5 +16,7 @@ PLAY HERE: https://cosmic4445.github.io/Tower-Defence/
 
 > [!CAUTION]
 > THIS GAME IS IN BETA BUGS MAY BE EXPECTED!
-> DO NOT COMPLAIN ABOUT MULTIPLAYER NOT SYNCING I AM FIXING THAT!
+
+> [!BUG]
+> If its asking you about NODE.JS (server hoster) just ignore it or tell me
 
