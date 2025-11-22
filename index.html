@@ -25,6 +25,7 @@
       width: 100vw;
       height: 100vh;
       padding: 40px;
+      overflow-y: auto;
     }
     .screen.active {
       display: flex;
@@ -39,6 +40,8 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       max-width: 500px;
       width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .light-mode .menu-container {
       background: white;
@@ -49,6 +52,12 @@
       text-align: center;
       margin-bottom: 30px;
       font-size: 36px;
+    }
+    h2 {
+      color: #7289DA;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
     }
     .menu-btn {
       width: 100%;
@@ -80,11 +89,11 @@
     .back-btn:hover {
       background: #369968;
     }
-    #gameScreen {
+    #gameScreen, #levelEditorScreen {
       padding: 0;
       position: relative;
     }
-    #gameCanvas {
+    #gameCanvas, #editorCanvas {
       display: block;
       width: 100vw;
       height: 100vh;
@@ -143,6 +152,33 @@
     .tower-btn.selected {
       background: #43B581;
     }
+    #towerUI {
+      position: absolute;
+      background: rgba(47, 49, 54, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      color: white;
+      min-width: 200px;
+    }
+    .light-mode #towerUI {
+      background: rgba(255, 255, 255, 0.95);
+      color: #2F3136;
+    }
+    #towerUI button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #7289DA;
+      color: white;
+      font-weight: bold;
+    }
+    #towerUI button:hover {
+      background: #5B6EAE;
+    }
     .input-group {
       margin: 15px 0;
     }
@@ -155,7 +191,7 @@
     .light-mode .input-group label {
       color: #4F5660;
     }
-    .input-group input, .input-group select {
+    .input-group input, .input-group select, .input-group textarea {
       width: 100%;
       padding: 10px;
       border: 2px solid #40444B;
@@ -165,33 +201,18 @@
       font-size: 14px;
     }
     .light-mode .input-group input,
-    .light-mode .input-group select {
+    .light-mode .input-group select,
+    .light-mode .input-group textarea {
       background: #f0f4f8;
       border-color: #cbd5e1;
       color: #2F3136;
     }
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      margin: 10px 0;
-    }
-    .checkbox-group input {
-      width: auto;
-      margin-right: 10px;
-    }
-    .checkbox-group label {
-      margin: 0;
-      color: #B9BBBE;
-    }
-    .light-mode .checkbox-group label {
-      color: #4F5660;
-    }
-    .server-list {
-      max-height: 300px;
+    .level-list {
+      max-height: 400px;
       overflow-y: auto;
       margin: 15px 0;
     }
-    .server-item {
+    .level-item {
       background: #40444B;
       padding: 15px;
       margin: 10px 0;
@@ -199,92 +220,181 @@
       cursor: pointer;
       transition: all 0.3s;
     }
-    .light-mode .server-item {
+    .light-mode .level-item {
       background: #f0f4f8;
     }
-    .server-item:hover {
+    .level-item:hover {
       background: #4E5D94;
     }
-    .light-mode .server-item:hover {
+    .light-mode .level-item:hover {
       background: #e2e8f0;
     }
-    .server-item h3 {
+    .level-item h3 {
       color: #7289DA;
       margin-bottom: 5px;
     }
-    .server-item p {
+    .level-item p {
       color: #B9BBBE;
       font-size: 14px;
       margin: 2px 0;
     }
-    .light-mode .server-item p {
+    .light-mode .level-item p {
       color: #4F5660;
     }
-    .no-servers {
-      text-align: center;
-      color: #B9BBBE;
+    #editorToolbar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(47, 49, 54, 0.95);
+      padding: 15px;
+      border-radius: 10px;
+      color: white;
+    }
+    .light-mode #editorToolbar {
+      background: rgba(255, 255, 255, 0.95);
+      color: #2F3136;
+    }
+    .tool-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #7289DA;
+      color: white;
+      font-weight: bold;
+    }
+    .tool-btn:hover {
+      background: #5B6EAE;
+    }
+    .tool-btn.active {
+      background: #43B581;
+    }
+    #adminPanel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2F3136;
+      padding: 30px;
+      border-radius: 15px;
+      display: none;
+      z-index: 1000;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .light-mode #adminPanel {
+      background: white;
+    }
+    #usernameModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      background: #2F3136;
       padding: 40px;
-      font-size: 18px;
+      border-radius: 15px;
+      text-align: center;
+      color: white;
     }
-    .light-mode .no-servers {
-      color: #4F5660;
+    .light-mode .modal-content {
+      background: white;
+      color: #2F3136;
     }
-    .player-list {
+    #completionScreen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2F3136;
+      padding: 40px;
+      border-radius: 15px;
+      display: none;
+      z-index: 1000;
+      text-align: center;
+      color: white;
+    }
+    .light-mode #completionScreen {
+      background: white;
+      color: #2F3136;
+    }
+    .shop-tab {
+      display: none;
+    }
+    .shop-tab.active {
+      display: block;
+    }
+    .shop-item {
       background: #40444B;
       padding: 15px;
+      margin: 10px 0;
       border-radius: 8px;
-      margin: 15px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .light-mode .player-list {
+    .light-mode .shop-item {
       background: #f0f4f8;
     }
-    .player-item {
-      color: #B9BBBE;
-      padding: 8px;
-      margin: 5px 0;
-    }
-    .light-mode .player-item {
-      color: #4F5660;
-    }
-    .player-item.host {
-      color: #43B581;
-    }
-    .filter-bar {
+    .tab-buttons {
       display: flex;
       gap: 10px;
-      margin: 15px 0;
+      margin-bottom: 20px;
     }
-    .filter-bar select {
+    .tab-btn {
       flex: 1;
-    }
-    #leaveBtn {
-      background: #F04747;
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: bold;
+      padding: 10px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      background: #40444B;
       color: white;
-      transition: all 0.3s;
+      font-weight: bold;
     }
-    #leaveBtn:hover {
-      background: #D83C3C;
-      transform: translateY(-2px);
+    .light-mode .tab-btn {
+      background: #f0f4f8;
+      color: #2F3136;
+    }
+    .tab-btn.active {
+      background: #7289DA;
     }
   </style>
 </head>
 <body>
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <!-- Username Modal -->
+  <div id="usernameModal">
+    <div class="modal-content">
+      <h1>Welcome!</h1>
+      <div class="input-group">
+        <label>Choose your username</label>
+        <input type="text" id="usernameInput" maxlength="20" placeholder="Enter username...">
+      </div>
+      <p id="usernameMessage" style="margin: 10px 0; color: #43B581;"></p>
+      <button class="menu-btn" onclick="setUsername()">Continue</button>
+    </div>
+  </div>
+
   <!-- Main Menu -->
-  <div id="mainMenu" class="screen active">
+  <div id="mainMenu" class="screen">
     <div class="menu-container">
       <h1>🏰 Tower Defense</h1>
       <button class="menu-btn" onclick="showScreen('modeSelect')">Play</button>
-      <button class="menu-btn secondary" onclick="showScreen('multiplayerMenu')">Multiplayer</button>
+      <button class="menu-btn secondary" onclick="showScreen('levelsMenu')">Levels</button>
+      <button class="menu-btn secondary" onclick="showScreen('shopMenu')">Shop</button>
+      <button class="menu-btn secondary" onclick="showScreen('levelEditor')">Level Editor</button>
+      <button class="menu-btn secondary" onclick="showScreen('updateLog')">Update Log</button>
       <button class="menu-btn secondary" onclick="showScreen('settingsMenu')">Settings</button>
     </div>
   </div>
@@ -294,10 +404,86 @@
     <div class="menu-container">
       <h1>Select Difficulty</h1>
       <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
-      <button class="menu-btn" onclick="startGame('easy')">Easy</button>
-      <button class="menu-btn" onclick="startGame('normal')">Normal</button>
-      <button class="menu-btn" onclick="startGame('hard')">Hard</button>
-      <button class="menu-btn" onclick="startGame('expert')">Expert</button>
+      <button class="menu-btn" onclick="startGame('easy')">Easy (20 waves)</button>
+      <button class="menu-btn" onclick="startGame('normal')">Normal (40 waves)</button>
+      <button class="menu-btn" onclick="startGame('hard')">Hard (60 waves)</button>
+      <button class="menu-btn" onclick="startGame('expert')">Expert (100 waves)</button>
+    </div>
+  </div>
+
+  <!-- Levels Menu -->
+  <div id="levelsMenu" class="screen">
+    <div class="menu-container">
+      <h1>Levels</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
+      <button class="menu-btn" onclick="showScreen('officialLevels')">Official Levels</button>
+      <button class="menu-btn" onclick="showScreen('browseLevels')">Browse Levels</button>
+    </div>
+  </div>
+
+  <!-- Official Levels -->
+  <div id="officialLevels" class="screen">
+    <div class="menu-container">
+      <h1>Official Levels</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('levelsMenu')">← Back</button>
+      <div class="level-list" id="officialLevelList"></div>
+    </div>
+  </div>
+
+  <!-- Browse Levels -->
+  <div id="browseLevels" class="screen">
+    <div class="menu-container">
+      <h1>Community Levels</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('levelsMenu')">← Back</button>
+      <div class="level-list" id="communityLevelList"></div>
+    </div>
+  </div>
+
+  <!-- Shop Menu -->
+  <div id="shopMenu" class="screen">
+    <div class="menu-container">
+      <h1>Shop</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
+      <p style="color: #B9BBBE; text-align: center; margin-bottom: 20px;">Coins: <span id="shopCoins">0</span></p>
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchShopTab('gunner')">Gunner</button>
+        <button class="tab-btn" onclick="switchShopTab('sniper')">Sniper</button>
+        <button class="tab-btn" onclick="switchShopTab('wizard')">Wizard</button>
+        <button class="tab-btn" onclick="switchShopTab('rifle')">Rifle</button>
+        <button class="tab-btn" onclick="switchShopTab('powerups')">Powerups</button>
+      </div>
+      <div id="shopContent"></div>
+    </div>
+  </div>
+
+  <!-- Update Log -->
+  <div id="updateLog" class="screen">
+    <div class="menu-container">
+      <h1>Update Log</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
+      <div class="input-group">
+        <textarea id="updateLogText" rows="15" readonly>
+v2.0.0 - Major Update!
+• Added Level Editor
+• Added Shop system with tower skins
+• Added powerups (Damage Boost, Freeze, Price Reduction)
+• Added grid snap system for tower placement
+• Added tower upgrade and targeting system
+• Added community level browser
+• Added official levels section
+• Buffed Rifle tower (now 1000g)
+• Buffed Sniper range
+• Fixed tower placement overlap bug
+• Added wave completion rewards
+• Added username system
+
+v1.0.0 - Initial Release
+• 4 Tower types
+• 5 Enemy types including Boss
+• Multiple difficulty modes
+• Wave-based gameplay
+        </textarea>
+      </div>
     </div>
   </div>
 
@@ -312,93 +498,29 @@
     </div>
   </div>
 
-  <!-- Multiplayer Menu -->
-  <div id="multiplayerMenu" class="screen">
+  <!-- Level Editor -->
+  <div id="levelEditor" class="screen">
     <div class="menu-container">
-      <h1>Multiplayer</h1>
+      <h1>Level Editor</h1>
       <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
-      <button class="menu-btn" onclick="showScreen('serverList')">Server List</button>
-      <button class="menu-btn" onclick="showScreen('hostGame')">Host Game</button>
+      <button class="menu-btn" onclick="createNewLevel()">New Level</button>
+      <button class="menu-btn" onclick="loadSavedLevels()">Load Saved Level</button>
     </div>
   </div>
 
-  <!-- Server List -->
-  <div id="serverList" class="screen">
-    <div class="menu-container" style="max-width: 700px;">
-      <h1>Server List</h1>
-      <button class="menu-btn back-btn" onclick="showScreen('multiplayerMenu')">← Back</button>
-      <div class="filter-bar">
-        <select id="difficultyFilter">
-          <option value="all">All Difficulties</option>
-          <option value="easy">Easy</option>
-          <option value="normal">Normal</option>
-          <option value="hard">Hard</option>
-          <option value="expert">Expert</option>
-        </select>
-        <button class="menu-btn" onclick="refreshServers()" style="width: auto; margin: 0;">🔄 Refresh</button>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()">
-        <label for="autoRefresh">Auto Refresh (every 5s)</label>
-      </div>
-      <div class="server-list" id="serverListContainer">
-        <div class="no-servers">No servers found</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Host Game -->
-  <div id="hostGame" class="screen">
-    <div class="menu-container">
-      <h1>Host Game</h1>
-      <button class="menu-btn back-btn" onclick="showScreen('multiplayerMenu')">← Back</button>
-      <div class="input-group">
-        <label>Server Name</label>
-        <input type="text" id="serverName" placeholder="My Awesome Server" maxlength="30">
-      </div>
-      <div class="input-group">
-        <label>Difficulty</label>
-        <select id="hostDifficulty">
-          <option value="easy">Easy</option>
-          <option value="normal">Normal</option>
-          <option value="hard">Hard</option>
-          <option value="expert">Expert</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Max Players (2-8)</label>
-        <input type="number" id="maxPlayers" min="2" max="8" value="4">
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="publicServer" checked>
-        <label for="publicServer">Public</label>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="lockedServer">
-        <label for="lockedServer">Locked (Password/Invite Only)</label>
-      </div>
-      <div class="input-group" id="passwordGroup" style="display: none;">
-        <label>Password</label>
-        <input type="password" id="serverPassword" placeholder="Optional password">
-      </div>
-      <button class="menu-btn" onclick="hostServer()">Host Server</button>
-      <button class="menu-btn secondary" onclick="showScreen('multiplayerMenu')">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Lobby -->
-  <div id="lobbyScreen" class="screen">
-    <div class="menu-container">
-      <h1 id="lobbyServerName">Server Name</h1>
-      <button class="menu-btn back-btn" onclick="leaveLobby()">← Leave</button>
-      <div class="player-list">
-        <h3 style="color: #7289DA; margin-bottom: 10px;">Players</h3>
-        <div id="playerListContainer"></div>
-      </div>
-      <p style="color: #B9BBBE; text-align: center; margin: 10px 0;">
-        Difficulty: <span id="lobbyDifficulty"></span>
-      </p>
-      <button class="menu-btn" id="startGameBtn" onclick="startMultiplayerGame()" style="display: none;">Start Game</button>
+  <!-- Level Editor Screen -->
+  <div id="levelEditorScreen" class="screen">
+    <canvas id="editorCanvas"></canvas>
+    <div id="editorToolbar">
+      <h3 style="margin-bottom: 10px;">Tools</h3>
+      <button class="tool-btn active" data-tool="road">Road</button>
+      <button class="tool-btn" data-tool="rock">Rock</button>
+      <button class="tool-btn" data-tool="erase">Erase</button>
+      <hr style="margin: 10px 0;">
+      <button class="tool-btn" onclick="testLevel()">Test Level</button>
+      <button class="tool-btn" onclick="saveLevel()">Save Level</button>
+      <button class="tool-btn" onclick="publishLevel()">Publish Level</button>
+      <button class="tool-btn" onclick="exitEditor()">Exit</button>
     </div>
   </div>
 
@@ -419,81 +541,120 @@
       <button class="tower-btn" data-tower="gunner">Gunner (50g)</button>
       <button class="tower-btn" data-tower="sniper">Sniper (100g)</button>
       <button class="tower-btn" data-tower="wizard">Wizard (120g)</button>
-      <button class="tower-btn" data-tower="rifle">Rifle (80g)</button>
+      <button class="tower-btn" data-tower="rifle">Rifle (1000g)</button>
+    </div>
+    <div id="towerUI">
+      <h3 id="towerUITitle">Tower Options</h3>
+      <button onclick="upgradeTower()">Upgrade (Cost: <span id="upgradeCost">100</span>g)</button>
+      <select id="towerTarget" onchange="changeTowerTarget()">
+        <option value="first">Target: First</option>
+        <option value="zombie">Target: Zombie</option>
+        <option value="speed">Target: Speed Zombie</option>
+        <option value="tank">Target: Tank</option>
+        <option value="king">Target: King</option>
+      </select>
+      <button onclick="closeTowerUI()">Close</button>
     </div>
     <button class="tower-btn" id="leaveBtn" onclick="leaveGame()">Leave Game</button>
   </div>
 
+  <!-- Completion Screen -->
+  <div id="completionScreen">
+    <h1>🎉 Level Complete!</h1>
+    <p id="completionMessage"></p>
+    <button class="menu-btn" onclick="nextLevel()">Next Level</button>
+    <button class="menu-btn secondary" onclick="restartLevel()">Restart</button>
+    <button class="menu-btn secondary" onclick="leaveGame()">Main Menu</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel">
+    <h1>Admin Panel</h1>
+    <button class="menu-btn" onclick="showAdminSection('publishLevel')">Publish Level</button>
+    <button class="menu-btn" onclick="showAdminSection('unpublishLevel')">Unpublish Level</button>
+    <h3 style="color: #7289DA; margin-top: 20px;">Give Coins</h3>
+    <button class="menu-btn" onclick="giveCoins(10)">+10 Coins</button>
+    <button class="menu-btn" onclick="giveCoins(100)">+100 Coins</button>
+    <button class="menu-btn" onclick="giveCoins(1000)">+1000 Coins</button>
+    <h3 style="color: #7289DA; margin-top: 20px;">Remove Coins</h3>
+    <button class="menu-btn secondary" onclick="giveCoins(-10)">-10 Coins</button>
+    <button class="menu-btn secondary" onclick="giveCoins(-100)">-100 Coins</button>
+    <button class="menu-btn secondary" onclick="giveCoins(-1000)">-1000 Coins</button>
+    <button class="menu-btn" style="margin-top: 20px;" onclick="closeAdmin()">Close</button>
+  </div>
+
   <script>
-    let socket = null;
-    let currentScreen = 'mainMenu';
-    let autoRefreshInterval = null;
-    let currentLobby = null;
-    let isHost = false;
-    let playerName = 'Player';
+    // Game State
+    let currentScreen = 'usernameModal';
+    let username = '';
+    let userCoins = 1000;
+    let currentLevel = null;
+    let savedLevels = [];
+    let communityLevels = [];
+    let officialLevels = [];
+    let selectedTowerObj = null;
+    let adminMode = false;
+    let ownedSkins = {gunner: ['default'], sniper: ['default'], wizard: ['default'], rifle: ['default']};
+    let activeSkins = {gunner: 'default', sniper: 'default', wizard: 'default', rifle: 'default'};
+    let powerups = {damageBoost: false, freeze: false, priceReduction: false};
     
-    // Connect to server
-    function connectToServer() {
-      socket = io('http://localhost:3000');
+    // Cheat code listener
+    let keyBuffer = '';
+    document.addEventListener('keypress', (e) => {
+      keyBuffer += e.key.toUpperCase();
+      if (keyBuffer.length > 10) keyBuffer = keyBuffer.slice(-10);
+      if (keyBuffer.includes('CUBERDEVV')) {
+        adminMode = true;
+        document.getElementById('adminPanel').style.display = 'block';
+        keyBuffer = '';
+      }
+    });
+
+    function setUsername() {
+      const input = document.getElementById('usernameInput').value.trim();
+      const message = document.getElementById('usernameMessage');
       
-      socket.on('connect', () => {
-        console.log('Connected to server!');
-      });
+      if (input.length < 3) {
+        message.textContent = 'Username must be at least 3 characters';
+        message.style.color = '#F04747';
+        return;
+      }
       
-      socket.on('serverList', (servers) => {
-        mockServers = servers;
-        if (currentScreen === 'serverList') {
-          displayServers();
+      // Check if username exists (simulated)
+      const existingUsers = ['admin', 'test', 'player1'];
+      if (existingUsers.includes(input.toLowerCase())) {
+        message.textContent = 'Error: Username taken';
+        message.style.color = '#F04747';
+        return;
+      }
+      
+      username = input;
+      message.textContent = 'Success!';
+      message.style.color = '#43B581';
+      
+      let countdown = 5;
+      const timer = setInterval(() => {
+        countdown--;
+        message.textContent = `Success! Closing in ${countdown}...`;
+        if (countdown <= 0) {
+          clearInterval(timer);
+          document.getElementById('usernameModal').style.display = 'none';
+          showScreen('mainMenu');
         }
-      });
-      
-      socket.on('joinedLobby', (lobby) => {
-        currentLobby = lobby;
-        isHost = lobby.hostId === socket.id;
-        showLobby();
-      });
-      
-      socket.on('lobbyUpdate', (lobby) => {
-        currentLobby = lobby;
-        if (currentScreen === 'lobbyScreen') {
-          updateLobbyDisplay();
-        }
-      });
-      
-      socket.on('serverClosed', (reason) => {
-        alert(reason);
-        currentLobby = null;
-        isHost = false;
-        showScreen('multiplayerMenu');
-      });
-      
-      socket.on('gameStarted', (data) => {
-        startGame(data.difficulty);
-      });
-      
-      socket.on('error', (msg) => {
-        alert(msg);
-      });
+      }, 1000);
     }
-    
-    // Connect on page load
-    connectToServer();
-    
-    // Mock multiplayer data
-    let mockServers = [];
 
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
       currentScreen = screenId;
       
-      if (screenId === 'serverList') {
-        refreshServers();
-      }
-      
-      // Show info if trying to see multiplayer servers
-      if (screenId === 'serverList' && mockServers.length === 0) {
-        console.log('Note: Multiplayer requires a backend server. This is a demo of the UI only.');
+      if (screenId === 'shopMenu') {
+        updateShop();
+      } else if (screenId === 'officialLevels') {
+        loadOfficialLevels();
+      } else if (screenId === 'browseLevels') {
+        loadCommunityLevels();
       }
     }
 
@@ -505,117 +666,272 @@
       }
     }
 
-    document.getElementById('lockedServer').addEventListener('change', function() {
-      document.getElementById('passwordGroup').style.display = this.checked ? 'block' : 'none';
-    });
+    // Shop System
+    function switchShopTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      updateShop(tab);
+    }
 
-    function refreshServers() {
-      if (socket && socket.connected) {
-        // Server list is automatically updated via socket
-        displayServers();
-      } else {
-        document.getElementById('serverListContainer').innerHTML = `
-          <div class="no-servers">⚠️ Not connected to server<br>Make sure the Node.js server is running!</div>
+    function updateShop(tab = 'gunner') {
+      document.getElementById('shopCoins').textContent = userCoins;
+      const content = document.getElementById('shopContent');
+      
+      if (tab === 'powerups') {
+        content.innerHTML = `
+          <div class="shop-item">
+            <span>Damage Boost (x2 damage)</span>
+            <button class="menu-btn" style="width: auto; margin: 0;" onclick="buyPowerup('damageBoost', 500)">${powerups.damageBoost ? 'Owned' : '500 coins'}</button>
+          </div>
+          <div class="shop-item">
+            <span>Freeze (Slow enemies 50%)</span>
+            <button class="menu-btn" style="width: auto; margin: 0;" onclick="buyPowerup('freeze', 750)">${powerups.freeze ? 'Owned' : '750 coins'}</button>
+          </div>
+          <div class="shop-item">
+            <span>Price Reduction (50% off towers)</span>
+            <button class="menu-btn" style="width: auto; margin: 0;" onclick="buyPowerup('priceReduction', 1000)">${powerups.priceReduction ? 'Owned' : '1000 coins'}</button>
+          </div>
         `;
+      } else {
+        const skins = ['default', 'gold', 'diamond', 'rainbow'];
+        content.innerHTML = skins.map(skin => {
+          const cost = skin === 'default' ? 0 : skin === 'gold' ? 200 : skin === 'diamond' ? 500 : 1000;
+          const owned = ownedSkins[tab].includes(skin);
+          const active = activeSkins[tab] === skin;
+          return `
+            <div class="shop-item">
+              <span>${skin.charAt(0).toUpperCase() + skin.slice(1)} Skin</span>
+              <button class="menu-btn" style="width: auto; margin: 0;" onclick="buySkin('${tab}', '${skin}', ${cost})">${active ? 'Active' : owned ? 'Equip' : cost + ' coins'}</button>
+            </div>
+          `;
+        }).join('');
       }
     }
-    
-    function displayServers() {
-      const container = document.getElementById('serverListContainer');
-      const filter = document.getElementById('difficultyFilter').value;
-      
-      const filtered = filter === 'all' ? mockServers : mockServers.filter(s => s.difficulty === filter);
-      
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="no-servers">No servers found</div>';
+
+    function buySkin(tower, skin, cost) {
+      if (ownedSkins[tower].includes(skin)) {
+        activeSkins[tower] = skin;
+        updateShop(tower);
+      } else if (userCoins >= cost) {
+        userCoins -= cost;
+        ownedSkins[tower].push(skin);
+        activeSkins[tower] = skin;
+        updateShop(tower);
       } else {
-        container.innerHTML = filtered.map(s => `
-          <div class="server-item" onclick="joinServer(${s.id})">
-            <h3>${s.name}</h3>
-            <p>Difficulty: ${s.difficulty.toUpperCase()}</p>
-            <p>Players: ${s.players.length}/${s.maxPlayers}</p>
+        alert('Not enough coins!');
+      }
+    }
+
+    function buyPowerup(type, cost) {
+      if (powerups[type]) {
+        alert('Already owned!');
+      } else if (userCoins >= cost) {
+        userCoins -= cost;
+        powerups[type] = true;
+        updateShop('powerups');
+      } else {
+        alert('Not enough coins!');
+      }
+    }
+
+    // Admin Functions
+    function closeAdmin() {
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function showAdminSection(section) {
+      if (section === 'publishLevel') {
+        const levelName = prompt('Enter saved level name to publish as official:');
+        if (levelName) {
+          const level = savedLevels.find(l => l.name === levelName);
+          if (level) {
+            officialLevels.push({...level, official: true});
+            alert('Level published to official levels!');
+          } else {
+            alert('Level not found!');
+          }
+        }
+      } else if (section === 'unpublishLevel') {
+        const levelName = prompt('Enter official level name to unpublish:');
+        if (levelName) {
+          officialLevels = officialLevels.filter(l => l.name !== levelName);
+          alert('Level unpublished!');
+        }
+      }
+    }
+
+    function giveCoins(amount) {
+      userCoins += amount;
+      if (userCoins < 0) userCoins = 0;
+      alert(`Coins adjusted! New balance: ${userCoins}`);
+    }
+
+    // Level Editor
+    const editorCanvas = document.getElementById('editorCanvas');
+    const editorCtx = editorCanvas.getContext('2d');
+    let editorGrid = [];
+    let editorTool = 'road';
+    let editorGridSize = 40;
+
+    function createNewLevel() {
+      resizeCanvas(editorCanvas);
+      editorGrid = Array(Math.ceil(editorCanvas.height / editorGridSize)).fill(null).map(() => 
+        Array(Math.ceil(editorCanvas.width / editorGridSize)).fill('empty')
+      );
+      showScreen('levelEditorScreen');
+      drawEditorGrid();
+      setupEditorListeners();
+    }
+
+    function setupEditorListeners() {
+      document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          editorTool = this.dataset.tool;
+        });
+      });
+      
+      editorCanvas.addEventListener('click', (e) => {
+        const rect = editorCanvas.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) / editorGridSize);
+        const y = Math.floor((e.clientY - rect.top) / editorGridSize);
+        
+        if (y < editorGrid.length && x < editorGrid[0].length) {
+          if (editorTool === 'erase') {
+            editorGrid[y][x] = 'empty';
+          } else {
+            editorGrid[y][x] = editorTool;
+          }
+          drawEditorGrid();
+        }
+      });
+    }
+
+    function drawEditorGrid() {
+      editorCtx.fillStyle = '#36393F';
+      editorCtx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
+      
+      for (let y = 0; y < editorGrid.length; y++) {
+        for (let x = 0; x < editorGrid[0].length; x++) {
+          const cell = editorGrid[y][x];
+          const px = x * editorGridSize;
+          const py = y * editorGridSize;
+          
+          if (cell === 'road') {
+            editorCtx.fillStyle = '#4a5568';
+          } else if (cell === 'rock') {
+            editorCtx.fillStyle = '#718096';
+          } else {
+            editorCtx.fillStyle = '#2d3748';
+          }
+          
+          editorCtx.fillRect(px, py, editorGridSize - 2, editorGridSize - 2);
+        }
+      }
+      
+      // Draw grid lines
+      editorCtx.strokeStyle = '#1a202c';
+      editorCtx.lineWidth = 1;
+      for (let x = 0; x <= editorCanvas.width; x += editorGridSize) {
+        editorCtx.beginPath();
+        editorCtx.moveTo(x, 0);
+        editorCtx.lineTo(x, editorCanvas.height);
+        editorCtx.stroke();
+      }
+      for (let y = 0; y <= editorCanvas.height; y += editorGridSize) {
+        editorCtx.beginPath();
+        editorCtx.moveTo(0, y);
+        editorCtx.lineTo(editorCanvas.width, y);
+        editorCtx.stroke();
+      }
+    }
+
+    function testLevel() {
+      currentLevel = {grid: JSON.parse(JSON.stringify(editorGrid)), custom: true};
+      startGame('normal', true);
+    }
+
+    function saveLevel() {
+      const name = prompt('Enter level name:');
+      if (name) {
+        savedLevels.push({
+          name: name,
+          grid: JSON.parse(JSON.stringify(editorGrid)),
+          author: username,
+          date: new Date().toLocaleDateString()
+        });
+        alert('Level saved!');
+      }
+    }
+
+    function publishLevel() {
+      const name = prompt('Enter level name to publish:');
+      if (name) {
+        communityLevels.push({
+          name: name,
+          grid: JSON.parse(JSON.stringify(editorGrid)),
+          author: username,
+          date: new Date().toLocaleDateString()
+        });
+        alert('Level published to community!');
+      }
+    }
+
+    function exitEditor() {
+      showScreen('levelEditor');
+    }
+
+    function loadSavedLevels() {
+      if (savedLevels.length === 0) {
+        alert('No saved levels!');
+        return;
+      }
+      const choice = prompt('Saved levels:\n' + savedLevels.map((l, i) => `${i + 1}. ${l.name}`).join('\n') + '\n\nEnter number:');
+      const idx = parseInt(choice) - 1;
+      if (idx >= 0 && idx < savedLevels.length) {
+        editorGrid = JSON.parse(JSON.stringify(savedLevels[idx].grid));
+        showScreen('levelEditorScreen');
+        resizeCanvas(editorCanvas);
+        drawEditorGrid();
+        setupEditorListeners();
+      }
+    }
+
+    function loadOfficialLevels() {
+      const list = document.getElementById('officialLevelList');
+      if (officialLevels.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #B9BBBE; padding: 20px;">No official levels yet</p>';
+      } else {
+        list.innerHTML = officialLevels.map((level, i) => `
+          <div class="level-item" onclick="playCustomLevel(${i}, true)">
+            <h3>${level.name}</h3>
+            <p>By: ${level.author || 'Official'}</p>
+            <p>Date: ${level.date}</p>
           </div>
         `).join('');
       }
     }
 
-    function toggleAutoRefresh() {
-      if (document.getElementById('autoRefresh').checked) {
-        autoRefreshInterval = setInterval(refreshServers, 5000);
+    function loadCommunityLevels() {
+      const list = document.getElementById('communityLevelList');
+      if (communityLevels.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #B9BBBE; padding: 20px;">No community levels yet</p>';
       } else {
-        clearInterval(autoRefreshInterval);
+        list.innerHTML = communityLevels.map((level, i) => `
+          <div class="level-item" onclick="playCustomLevel(${i}, false)">
+            <h3>${level.name}</h3>
+            <p>By: ${level.author}</p>
+            <p>Date: ${level.date}</p>
+          </div>
+        `).join('');
       }
     }
 
-    function hostServer() {
-      if (!socket || !socket.connected) {
-        alert('Not connected to server! Make sure the Node.js server is running.');
-        return;
-      }
-      
-      const name = document.getElementById('serverName').value || 'Unnamed Server';
-      const difficulty = document.getElementById('hostDifficulty').value;
-      const maxPlayers = parseInt(document.getElementById('maxPlayers').value);
-      const isPublic = document.getElementById('publicServer').checked;
-      const locked = document.getElementById('lockedServer').checked;
-      const password = locked ? document.getElementById('serverPassword').value : null;
-      
-      socket.emit('hostServer', {
-        name,
-        difficulty,
-        maxPlayers,
-        isPublic,
-        locked,
-        password,
-        playerName
-      });
-    }
-
-    function joinServer(id) {
-      if (!socket || !socket.connected) {
-        alert('Not connected to server!');
-        return;
-      }
-      
-      const server = mockServers.find(s => s.id === id);
-      if (server && server.locked) {
-        const password = prompt('This server is locked. Enter password:');
-        socket.emit('joinServer', {serverId: id, playerName, password});
-      } else {
-        socket.emit('joinServer', {serverId: id, playerName});
-      }
-    }
-
-    function showLobby() {
-      updateLobbyDisplay();
-      showScreen('lobbyScreen');
-    }
-    
-    function updateLobbyDisplay() {
-      document.getElementById('lobbyServerName').textContent = currentLobby.name;
-      document.getElementById('lobbyDifficulty').textContent = currentLobby.difficulty.toUpperCase();
-      
-      const playerList = document.getElementById('playerListContainer');
-      playerList.innerHTML = currentLobby.players.map(p => 
-        `<div class="player-item ${p.isHost ? 'host' : ''}">${p.name}${p.isHost ? ' (Host)' : ''}</div>`
-      ).join('');
-      
-      document.getElementById('startGameBtn').style.display = isHost ? 'block' : 'none';
-    }
-
-    function leaveLobby() {
-      if (socket && socket.connected) {
-        socket.emit('leaveLobby');
-      }
-      currentLobby = null;
-      isHost = false;
-      showScreen('multiplayerMenu');
-    }
-    
-    function startMultiplayerGame() {
-      if (socket && socket.connected && isHost) {
-        socket.emit('startGame');
-      }
+    function playCustomLevel(idx, isOfficial) {
+      const level = isOfficial ? officialLevels[idx] : communityLevels[idx];
+      currentLevel = {grid: JSON.parse(JSON.stringify(level.grid)), custom: true, name: level.name};
+      startGame('normal', true);
     }
 
     // Game variables
@@ -623,29 +939,32 @@
     const ctx = canvas.getContext('2d');
     let game = null;
     let animationId = null;
+    let gridSize = 50;
+    let showGrid = false;
+    let ghostTower = null;
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    function resizeCanvas(cnv = canvas) {
+      cnv.width = window.innerWidth;
+      cnv.height = window.innerHeight;
     }
 
     const towerTypes = {
       gunner: {cost: 50, range: 120, damage: 10, fireRate: 2000, color: '#43B581', projectileSpeed: 6},
-      sniper: {cost: 100, range: 250, damage: 20, fireRate: 3000, color: '#F04747', projectileSpeed: 10},
+      sniper: {cost: 100, range: 300, damage: 20, fireRate: 3000, color: '#F04747', projectileSpeed: 10},
       wizard: {cost: 120, range: 100, damage: 2, fireRate: 2000, color: '#7289DA', poison: true, projectileSpeed: 4},
-      rifle: {cost: 80, range: 140, damage: 10, fireRate: 500, bullets: 2, color: '#FAA61A', projectileSpeed: 7}
+      rifle: {cost: 1000, range: 140, damage: 10, fireRate: 500, bullets: 2, color: '#FAA61A', projectileSpeed: 7}
     };
 
     const difficultySettings = {
-      easy: {startGold: 300, startLives: 30, enemyHpMult: 0.7, enemySpeedMult: 0.8},
-      normal: {startGold: 200, startLives: 20, enemyHpMult: 1, enemySpeedMult: 1},
-      hard: {startGold: 150, startLives: 15, enemyHpMult: 1.3, enemySpeedMult: 1.2},
-      expert: {startGold: 100, startLives: 10, enemyHpMult: 1.6, enemySpeedMult: 1.4}
+      easy: {startGold: 300, startLives: 30, enemyHpMult: 0.7, enemySpeedMult: 0.8, maxWaves: 20},
+      normal: {startGold: 200, startLives: 20, enemyHpMult: 1, enemySpeedMult: 1, maxWaves: 40},
+      hard: {startGold: 150, startLives: 15, enemyHpMult: 1.3, enemySpeedMult: 1.2, maxWaves: 60},
+      expert: {startGold: 100, startLives: 10, enemyHpMult: 1.6, enemySpeedMult: 1.4, maxWaves: 100}
     };
 
-    function startGame(difficulty) {
+    function startGame(difficulty, isCustom = false) {
       resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('resize', () => resizeCanvas());
       
       const settings = difficultySettings[difficulty];
       const centerX = canvas.width / 2;
@@ -663,14 +982,39 @@
         waveActive: false,
         enemiesSpawned: 0,
         enemiesInWave: 10,
-        path: generatePath(),
+        path: isCustom ? generatePathFromGrid() : generatePath(),
         settings: settings,
-        bossSpawned: false
+        bossSpawned: false,
+        isCustom: isCustom,
+        grid: isCustom ? currentLevel.grid : null
       };
+      
+      if (powerups.priceReduction) {
+        Object.keys(towerTypes).forEach(key => {
+          towerTypes[key].cost = Math.floor(towerTypes[key].cost * 0.5);
+        });
+      }
       
       showScreen('gameScreen');
       updateHUD();
+      setupGameListeners();
       gameLoop();
+    }
+
+    function generatePathFromGrid() {
+      const path = [];
+      const grid = currentLevel.grid;
+      
+      // Find road tiles and create path
+      for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0].length; x++) {
+          if (grid[y][x] === 'road') {
+            path.push({x: x * editorGridSize + editorGridSize / 2, y: y * editorGridSize + editorGridSize / 2});
+          }
+        }
+      }
+      
+      return path.length > 0 ? path : generatePath();
     }
 
     function generatePath() {
@@ -686,6 +1030,125 @@
         {x: w * 0.75, y: h * 0.7},
         {x: w + 50, y: h * 0.7}
       ];
+    }
+
+    function setupGameListeners() {
+      canvas.onclick = null;
+      canvas.onmousemove = null;
+      
+      canvas.addEventListener('mousemove', (e) => {
+        if (game.selectedTower) {
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          ghostTower = {
+            x: Math.floor(x / gridSize) * gridSize + gridSize / 2,
+            y: Math.floor(y / gridSize) * gridSize + gridSize / 2,
+            type: game.selectedTower
+          };
+        } else {
+          ghostTower = null;
+        }
+      });
+      
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Check if clicking on existing tower
+        const clickedTower = game.towers.find(t => 
+          Math.sqrt((t.x - x) ** 2 + (t.y - y) ** 2) < 25
+        );
+        
+        if (clickedTower) {
+          showTowerUI(clickedTower, e.clientX, e.clientY);
+          return;
+        }
+        
+        if (!game.selectedTower) return;
+        
+        const snapX = Math.floor(x / gridSize) * gridSize + gridSize / 2;
+        const snapY = Math.floor(y / gridSize) * gridSize + gridSize / 2;
+        
+        // Check for rocks in custom levels
+        if (game.isCustom && game.grid) {
+          const gridX = Math.floor(snapX / editorGridSize);
+          const gridY = Math.floor(snapY / editorGridSize);
+          if (gridY < game.grid.length && gridX < game.grid[0].length) {
+            if (game.grid[gridY][gridX] === 'rock' && game.selectedTower !== 'sniper') {
+              alert('Cannot place tower on rock! (Only snipers can)');
+              return;
+            }
+          }
+        }
+        
+        // Check if on path
+        const onPath = game.path.some((p, i) => {
+          if (i === 0) return false;
+          const prev = game.path[i - 1];
+          const d = distanceToSegment(snapX, snapY, prev.x, prev.y, p.x, p.y);
+          return d < 50;
+        });
+        
+        // Check if too close to other towers
+        const tooClose = game.towers.some(t => 
+          Math.sqrt((t.x - snapX) ** 2 + (t.y - snapY) ** 2) < gridSize
+        );
+        
+        if (!onPath && !tooClose) {
+          const cost = towerTypes[game.selectedTower].cost;
+          if (game.gold >= cost) {
+            placeTower(snapX, snapY, game.selectedTower);
+            document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('selected'));
+            game.selectedTower = null;
+            showGrid = false;
+            ghostTower = null;
+          }
+        } else if (tooClose) {
+          alert('Too close to another tower!');
+        }
+      });
+    }
+
+    function showTowerUI(tower, x, y) {
+      selectedTowerObj = tower;
+      const ui = document.getElementById('towerUI');
+      ui.style.display = 'block';
+      ui.style.left = x + 'px';
+      ui.style.top = y + 'px';
+      
+      document.getElementById('towerUITitle').textContent = tower.type.toUpperCase();
+      document.getElementById('upgradeCost').textContent = tower.upgrades ? tower.upgrades * 100 : 100;
+      document.getElementById('towerTarget').value = tower.targetType || 'first';
+    }
+
+    function closeTowerUI() {
+      document.getElementById('towerUI').style.display = 'none';
+      selectedTowerObj = null;
+    }
+
+    function upgradeTower() {
+      if (!selectedTowerObj) return;
+      const cost = (selectedTowerObj.upgrades || 0) * 100 + 100;
+      
+      if (game.gold >= cost) {
+        game.gold -= cost;
+        selectedTowerObj.upgrades = (selectedTowerObj.upgrades || 0) + 1;
+        selectedTowerObj.damage = Math.floor(selectedTowerObj.damage * 1.5);
+        selectedTowerObj.range = Math.floor(selectedTowerObj.range * 1.1);
+        updateHUD();
+        closeTowerUI();
+        alert('Tower upgraded!');
+      } else {
+        alert('Not enough gold!');
+      }
+    }
+
+    function changeTowerTarget() {
+      if (!selectedTowerObj) return;
+      selectedTowerObj.targetType = document.getElementById('towerTarget').value;
     }
 
     function startWave() {
@@ -707,13 +1170,11 @@
       const types = ['zombie', 'speed', 'tank'];
       let type = types[Math.floor(Math.random() * types.length)];
       
-      // Boss every 10 waves
       if (game.wave % 10 === 0 && !game.bossSpawned) {
         type = 'boss';
         game.bossSpawned = true;
       }
       
-      // King has 5% chance on wave 15+
       if (game.wave >= 15 && Math.random() < 0.05) {
         type = 'king';
       }
@@ -728,7 +1189,7 @@
       
       const stats = enemyStats[type];
       const mult = game.settings.enemyHpMult;
-      const speedMult = game.settings.enemySpeedMult;
+      const speedMult = powerups.freeze ? game.settings.enemySpeedMult * 0.5 : game.settings.enemySpeedMult;
       
       game.enemies.push({
         type: type,
@@ -754,7 +1215,6 @@
       for (let i = game.enemies.length - 1; i >= 0; i--) {
         const e = game.enemies[i];
         
-        // King spawning
         if (e.isKing && Date.now() - e.lastSpawn > 5000) {
           e.lastSpawn = Date.now();
           const spawnType = Math.random() < 0.3 ? 'tank' : 'zombie';
@@ -778,7 +1238,6 @@
           });
         }
         
-        // Poison damage
         if (e.poisoned && e.poisonTicks > 0) {
           if (Date.now() % 500 < 16) {
             e.hp -= 2;
@@ -786,7 +1245,6 @@
           }
         }
         
-        // Movement
         if (e.pathIndex < game.path.length - 1) {
           const target = game.path[e.pathIndex + 1];
           const dx = target.x - e.x;
@@ -808,9 +1266,9 @@
           }
         }
         
-        // Death
         if (e.hp <= 0) {
           game.gold += e.reward;
+          userCoins += Math.floor(e.reward / 2);
           game.enemies.splice(i, 1);
           updateHUD();
         }
@@ -826,7 +1284,9 @@
           
           game.enemies.forEach(e => {
             const dist = Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2);
-            if (dist <= t.range && e.pathIndex > maxProgress) {
+            const matchesTarget = !t.targetType || t.targetType === 'first' || e.type === t.targetType;
+            
+            if (dist <= t.range && matchesTarget && e.pathIndex > maxProgress) {
               maxProgress = e.pathIndex;
               target = e;
             }
@@ -836,17 +1296,19 @@
             const bullets = t.bullets || 1;
             for (let i = 0; i < bullets; i++) {
               setTimeout(() => {
-                game.projectiles.push({
-                  x: t.x,
-                  y: t.y,
-                  targetX: target.x,
-                  targetY: target.y,
-                  target: target,
-                  damage: t.damage,
-                  speed: t.projectileSpeed,
-                  color: t.color,
-                  poison: t.poison
-                });
+                if (game && game.projectiles) {
+                  game.projectiles.push({
+                    x: t.x,
+                    y: t.y,
+                    targetX: target.x,
+                    targetY: target.y,
+                    target: target,
+                    damage: powerups.damageBoost ? t.damage * 2 : t.damage,
+                    speed: t.projectileSpeed,
+                    color: t.color,
+                    poison: t.poison
+                  });
+                }
               }, i * 100);
             }
             t.lastFire = now;
@@ -891,6 +1353,41 @@
       ctx.stroke();
     }
 
+    function drawGrid() {
+      if (!showGrid && !game.selectedTower) return;
+      
+      ctx.strokeStyle = 'rgba(114, 137, 218, 0.2)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawGhostTower() {
+      if (!ghostTower) return;
+      
+      const specs = towerTypes[ghostTower.type];
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = specs.color;
+      ctx.fillRect(ghostTower.x - 20, ghostTower.y - 20, 40, 40);
+      
+      ctx.strokeStyle = specs.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(ghostTower.x, ghostTower.y, specs.range, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
     function drawEnemies() {
       game.enemies.forEach(e => {
         ctx.fillStyle = e.color;
@@ -912,7 +1409,6 @@
           ctx.fillText('☠', e.x, e.y + e.size + 12);
         }
         
-        // Health bar
         const barWidth = e.size * 2;
         const barHeight = 5;
         ctx.fillStyle = '#2F3136';
@@ -924,19 +1420,27 @@
 
     function drawTowers() {
       game.towers.forEach(t => {
-        ctx.fillStyle = t.color;
+        const skin = activeSkins[t.type];
+        let color = t.color;
+        
+        if (skin === 'gold') color = '#FFD700';
+        else if (skin === 'diamond') color = '#B9F2FF';
+        else if (skin === 'rainbow') {
+          const hue = (Date.now() / 10) % 360;
+          color = `hsl(${hue}, 70%, 60%)`;
+        }
+        
+        ctx.fillStyle = color;
         ctx.fillRect(t.x - 20, t.y - 20, 40, 40);
         ctx.strokeStyle = '#2F3136';
         ctx.lineWidth = 3;
         ctx.strokeRect(t.x - 20, t.y - 20, 40, 40);
         
-        // Range indicator when selected
-        if (game.selectedTower === t.type) {
-          ctx.strokeStyle = t.color + '40';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(t.x, t.y, t.range, 0, Math.PI * 2);
-          ctx.stroke();
+        if (t.upgrades) {
+          ctx.fillStyle = '#FFD700';
+          ctx.font = 'bold 12px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(`+${t.upgrades}`, t.x, t.y + 35);
         }
       });
     }
@@ -950,13 +1454,29 @@
       });
     }
 
+    function drawRocks() {
+      if (!game.isCustom || !game.grid) return;
+      
+      for (let y = 0; y < game.grid.length; y++) {
+        for (let x = 0; x < game.grid[0].length; x++) {
+          if (game.grid[y][x] === 'rock') {
+            ctx.fillStyle = '#718096';
+            ctx.fillRect(x * editorGridSize, y * editorGridSize, editorGridSize, editorGridSize);
+          }
+        }
+      }
+    }
+
     function gameLoop() {
       if (!game) return;
       
       ctx.fillStyle = document.body.classList.contains('light-mode') ? '#f0f4f8' : '#36393F';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
+      drawRocks();
       drawPath();
+      drawGrid();
+      drawGhostTower();
       updateEnemies();
       updateTowers();
       updateProjectiles();
@@ -966,15 +1486,40 @@
       
       if (game.waveActive && game.enemies.length === 0 && game.enemiesSpawned >= game.enemiesInWave) {
         game.waveActive = false;
+        
+        if (game.wave >= game.settings.maxWaves) {
+          showCompletionScreen();
+          return;
+        }
+        
         game.wave++;
         game.enemiesInWave += 5;
         game.enemiesSpawned = 0;
         game.gold += 50;
+        userCoins += 20;
         updateHUD();
         document.getElementById('startWaveBtn').disabled = false;
       }
       
       animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function showCompletionScreen() {
+      cancelAnimationFrame(animationId);
+      document.getElementById('completionMessage').textContent = `You completed all ${game.settings.maxWaves} waves!`;
+      document.getElementById('completionScreen').style.display = 'block';
+    }
+
+    function nextLevel() {
+      document.getElementById('completionScreen').style.display = 'none';
+      alert('Error: No more levels');
+    }
+
+    function restartLevel() {
+      document.getElementById('completionScreen').style.display = 'none';
+      const diff = game.difficulty;
+      const custom = game.isCustom;
+      startGame(diff, custom);
     }
 
     function placeTower(x, y, type) {
@@ -990,36 +1535,13 @@
         color: specs.color,
         poison: specs.poison || false,
         bullets: specs.bullets || 1,
-        projectileSpeed: specs.projectileSpeed
+        projectileSpeed: specs.projectileSpeed,
+        upgrades: 0,
+        targetType: 'first'
       });
       game.gold -= specs.cost;
       updateHUD();
     }
-
-    canvas.addEventListener('click', (e) => {
-      if (!game || !game.selectedTower) return;
-      
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-      
-      // Check if on path
-      const onPath = game.path.some((p, i) => {
-        if (i === 0) return false;
-        const prev = game.path[i - 1];
-        const d = distanceToSegment(x, y, prev.x, prev.y, p.x, p.y);
-        return d < 50;
-      });
-      
-      if (!onPath) {
-        const cost = towerTypes[game.selectedTower].cost;
-        if (game.gold >= cost) {
-          placeTower(x, y, game.selectedTower);
-          document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('selected'));
-          game.selectedTower = null;
-        }
-      }
-    });
 
     function distanceToSegment(px, py, x1, y1, x2, y2) {
       const dx = x2 - x1;
@@ -1032,12 +1554,13 @@
       return Math.sqrt((px - nearX) ** 2 + (py - nearY) ** 2);
     }
 
-    document.querySelectorAll('.tower-btn').forEach(btn => {
+    document.querySelectorAll('.tower-btn[data-tower]').forEach(btn => {
       btn.addEventListener('click', function() {
         const tower = this.dataset.tower;
         document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('selected'));
         this.classList.add('selected');
         game.selectedTower = tower;
+        showGrid = true;
       });
     });
 
@@ -1066,6 +1589,9 @@
         cancelAnimationFrame(animationId);
       }
       game = null;
+      ghostTower = null;
+      showGrid = false;
+      document.getElementById('completionScreen').style.display = 'none';
       showScreen('mainMenu');
     }
   </script>
