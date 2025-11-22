@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tower Defense</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #36393F;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    body.light-mode {
+      background: #f0f4f8;
+    }
+    .screen {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      padding: 40px;
+    }
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .menu-container {
+      background: #2F3136;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      max-width: 500px;
+      width: 100%;
+    }
+    .light-mode .menu-container {
+      background: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #7289DA;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 36px;
+    }
+    .menu-btn {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #7289DA;
+      color: white;
+      transition: all 0.3s;
+    }
+    .menu-btn:hover {
+      background: #5B6EAE;
+      transform: translateY(-2px);
+    }
+    .menu-btn.secondary {
+      background: #4E5D94;
+    }
+    .menu-btn.secondary:hover {
+      background: #3E4A75;
+    }
+    .back-btn {
+      background: #43B581;
+      margin-bottom: 20px;
+    }
+    .back-btn:hover {
+      background: #369968;
+    }
+    #gameScreen {
+      padding: 0;
+      position: relative;
+    }
+    #gameCanvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+    #gameHUD {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .hud-panel {
+      background: rgba(47, 49, 54, 0.95);
+      padding: 15px 25px;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      pointer-events: auto;
+    }
+    .light-mode .hud-panel {
+      background: rgba(255, 255, 255, 0.95);
+      color: #2F3136;
+    }
+    .stat {
+      margin: 5px 0;
+    }
+    #towerMenu {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .tower-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #7289DA;
+      color: white;
+      transition: all 0.3s;
+    }
+    .tower-btn:hover:not(:disabled) {
+      background: #5B6EAE;
+      transform: translateY(-2px);
+    }
+    .tower-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .tower-btn.selected {
+      background: #43B581;
+    }
+    .input-group {
+      margin: 15px 0;
+    }
+    .input-group label {
+      display: block;
+      color: #B9BBBE;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    .light-mode .input-group label {
+      color: #4F5660;
+    }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #40444B;
+      border-radius: 5px;
+      background: #40444B;
+      color: white;
+      font-size: 14px;
+    }
+    .light-mode .input-group input,
+    .light-mode .input-group select {
+      background: #f0f4f8;
+      border-color: #cbd5e1;
+      color: #2F3136;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .checkbox-group input {
+      width: auto;
+      margin-right: 10px;
+    }
+    .checkbox-group label {
+      margin: 0;
+      color: #B9BBBE;
+    }
+    .light-mode .checkbox-group label {
+      color: #4F5660;
+    }
+    .server-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 15px 0;
+    }
+    .server-item {
+      background: #40444B;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .light-mode .server-item {
+      background: #f0f4f8;
+    }
+    .server-item:hover {
+      background: #4E5D94;
+    }
+    .light-mode .server-item:hover {
+      background: #e2e8f0;
+    }
+    .server-item h3 {
+      color: #7289DA;
+      margin-bottom: 5px;
+    }
+    .server-item p {
+      color: #B9BBBE;
+      font-size: 14px;
+      margin: 2px 0;
+    }
+    .light-mode .server-item p {
+      color: #4F5660;
+    }
+    .no-servers {
+      text-align: center;
+      color: #B9BBBE;
+      padding: 40px;
+      font-size: 18px;
+    }
+    .light-mode .no-servers {
+      color: #4F5660;
+    }
+    .player-list {
+      background: #40444B;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .light-mode .player-list {
+      background: #f0f4f8;
+    }
+    .player-item {
+      color: #B9BBBE;
+      padding: 8px;
+      margin: 5px 0;
+    }
+    .light-mode .player-item {
+      color: #4F5660;
+    }
+    .player-item.host {
+      color: #43B581;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .filter-bar select {
+      flex: 1;
+    }
+    #leaveBtn {
+      background: #F04747;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: all 0.3s;
+    }
+    #leaveBtn:hover {
+      background: #D83C3C;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <!-- Main Menu -->
+  <div id="mainMenu" class="screen active">
+    <div class="menu-container">
+      <h1>🏰 Tower Defense</h1>
+      <button class="menu-btn" onclick="showScreen('modeSelect')">Play</button>
+      <button class="menu-btn secondary" onclick="showScreen('multiplayerMenu')">Multiplayer</button>
+      <button class="menu-btn secondary" onclick="showScreen('settingsMenu')">Settings</button>
+    </div>
+  </div>
+
+  <!-- Mode Selection -->
+  <div id="modeSelect" class="screen">
+    <div class="menu-container">
+      <h1>Select Difficulty</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
+      <button class="menu-btn" onclick="startGame('easy')">Easy</button>
+      <button class="menu-btn" onclick="startGame('normal')">Normal</button>
+      <button class="menu-btn" onclick="startGame('hard')">Hard</button>
+      <button class="menu-btn" onclick="startGame('expert')">Expert</button>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="settingsMenu" class="screen">
+    <div class="menu-container">
+      <h1>Settings</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
+      <button class="menu-btn" onclick="setTheme('dark')">Dark Mode</button>
+      <button class="menu-btn" onclick="setTheme('light')">Light Mode</button>
+      <button class="menu-btn secondary" onclick="location.reload()">Reload Game</button>
+    </div>
+  </div>
+
+  <!-- Multiplayer Menu -->
+  <div id="multiplayerMenu" class="screen">
+    <div class="menu-container">
+      <h1>Multiplayer</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('mainMenu')">← Back</button>
+      <button class="menu-btn" onclick="showScreen('serverList')">Server List</button>
+      <button class="menu-btn" onclick="showScreen('hostGame')">Host Game</button>
+    </div>
+  </div>
+
+  <!-- Server List -->
+  <div id="serverList" class="screen">
+    <div class="menu-container" style="max-width: 700px;">
+      <h1>Server List</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('multiplayerMenu')">← Back</button>
+      <div class="filter-bar">
+        <select id="difficultyFilter">
+          <option value="all">All Difficulties</option>
+          <option value="easy">Easy</option>
+          <option value="normal">Normal</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+        <button class="menu-btn" onclick="refreshServers()" style="width: auto; margin: 0;">🔄 Refresh</button>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()">
+        <label for="autoRefresh">Auto Refresh (every 5s)</label>
+      </div>
+      <div class="server-list" id="serverListContainer">
+        <div class="no-servers">No servers found</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Host Game -->
+  <div id="hostGame" class="screen">
+    <div class="menu-container">
+      <h1>Host Game</h1>
+      <button class="menu-btn back-btn" onclick="showScreen('multiplayerMenu')">← Back</button>
+      <div class="input-group">
+        <label>Server Name</label>
+        <input type="text" id="serverName" placeholder="My Awesome Server" maxlength="30">
+      </div>
+      <div class="input-group">
+        <label>Difficulty</label>
+        <select id="hostDifficulty">
+          <option value="easy">Easy</option>
+          <option value="normal">Normal</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Max Players (2-8)</label>
+        <input type="number" id="maxPlayers" min="2" max="8" value="4">
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="publicServer" checked>
+        <label for="publicServer">Public</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="lockedServer">
+        <label for="lockedServer">Locked (Password/Invite Only)</label>
+      </div>
+      <div class="input-group" id="passwordGroup" style="display: none;">
+        <label>Password</label>
+        <input type="password" id="serverPassword" placeholder="Optional password">
+      </div>
+      <button class="menu-btn" onclick="hostServer()">Host Server</button>
+      <button class="menu-btn secondary" onclick="showScreen('multiplayerMenu')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="lobbyScreen" class="screen">
+    <div class="menu-container">
+      <h1 id="lobbyServerName">Server Name</h1>
+      <button class="menu-btn back-btn" onclick="leaveLobby()">← Leave</button>
+      <div class="player-list">
+        <h3 style="color: #7289DA; margin-bottom: 10px;">Players</h3>
+        <div id="playerListContainer"></div>
+      </div>
+      <p style="color: #B9BBBE; text-align: center; margin: 10px 0;">
+        Difficulty: <span id="lobbyDifficulty"></span>
+      </p>
+      <button class="menu-btn" id="startGameBtn" onclick="startMultiplayerGame()" style="display: none;">Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen" class="screen">
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameHUD">
+      <div class="hud-panel">
+        <div class="stat">💰 Gold: <span id="gold">200</span></div>
+        <div class="stat">❤️ Lives: <span id="lives">20</span></div>
+        <div class="stat">🌊 Wave: <span id="wave">1</span></div>
+      </div>
+      <div class="hud-panel">
+        <button class="menu-btn" id="startWaveBtn" onclick="startWave()">Start Wave</button>
+      </div>
+    </div>
+    <div id="towerMenu">
+      <button class="tower-btn" data-tower="gunner">Gunner (50g)</button>
+      <button class="tower-btn" data-tower="sniper">Sniper (100g)</button>
+      <button class="tower-btn" data-tower="wizard">Wizard (120g)</button>
+      <button class="tower-btn" data-tower="rifle">Rifle (80g)</button>
+    </div>
+    <button class="tower-btn" id="leaveBtn" onclick="leaveGame()">Leave Game</button>
+  </div>
+
+  <script>
+    let socket = null;
+    let currentScreen = 'mainMenu';
+    let autoRefreshInterval = null;
+    let currentLobby = null;
+    let isHost = false;
+    let playerName = 'Player';
+    
+    // Connect to server
+    function connectToServer() {
+      socket = io('http://localhost:3000');
+      
+      socket.on('connect', () => {
+        console.log('Connected to server!');
+      });
+      
+      socket.on('serverList', (servers) => {
+        mockServers = servers;
+        if (currentScreen === 'serverList') {
+          displayServers();
+        }
+      });
+      
+      socket.on('joinedLobby', (lobby) => {
+        currentLobby = lobby;
+        isHost = lobby.hostId === socket.id;
+        showLobby();
+      });
+      
+      socket.on('lobbyUpdate', (lobby) => {
+        currentLobby = lobby;
+        if (currentScreen === 'lobbyScreen') {
+          updateLobbyDisplay();
+        }
+      });
+      
+      socket.on('serverClosed', (reason) => {
+        alert(reason);
+        currentLobby = null;
+        isHost = false;
+        showScreen('multiplayerMenu');
+      });
+      
+      socket.on('gameStarted', (data) => {
+        startGame(data.difficulty);
+      });
+      
+      socket.on('error', (msg) => {
+        alert(msg);
+      });
+    }
+    
+    // Connect on page load
+    connectToServer();
+    
+    // Mock multiplayer data
+    let mockServers = [];
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      currentScreen = screenId;
+      
+      if (screenId === 'serverList') {
+        refreshServers();
+      }
+      
+      // Show info if trying to see multiplayer servers
+      if (screenId === 'serverList' && mockServers.length === 0) {
+        console.log('Note: Multiplayer requires a backend server. This is a demo of the UI only.');
+      }
+    }
+
+    function setTheme(theme) {
+      if (theme === 'light') {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+    }
+
+    document.getElementById('lockedServer').addEventListener('change', function() {
+      document.getElementById('passwordGroup').style.display = this.checked ? 'block' : 'none';
+    });
+
+    function refreshServers() {
+      if (socket && socket.connected) {
+        // Server list is automatically updated via socket
+        displayServers();
+      } else {
+        document.getElementById('serverListContainer').innerHTML = `
+          <div class="no-servers">⚠️ Not connected to server<br>Make sure the Node.js server is running!</div>
+        `;
+      }
+    }
+    
+    function displayServers() {
+      const container = document.getElementById('serverListContainer');
+      const filter = document.getElementById('difficultyFilter').value;
+      
+      const filtered = filter === 'all' ? mockServers : mockServers.filter(s => s.difficulty === filter);
+      
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="no-servers">No servers found</div>';
+      } else {
+        container.innerHTML = filtered.map(s => `
+          <div class="server-item" onclick="joinServer(${s.id})">
+            <h3>${s.name}</h3>
+            <p>Difficulty: ${s.difficulty.toUpperCase()}</p>
+            <p>Players: ${s.players.length}/${s.maxPlayers}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    function toggleAutoRefresh() {
+      if (document.getElementById('autoRefresh').checked) {
+        autoRefreshInterval = setInterval(refreshServers, 5000);
+      } else {
+        clearInterval(autoRefreshInterval);
+      }
+    }
+
+    function hostServer() {
+      if (!socket || !socket.connected) {
+        alert('Not connected to server! Make sure the Node.js server is running.');
+        return;
+      }
+      
+      const name = document.getElementById('serverName').value || 'Unnamed Server';
+      const difficulty = document.getElementById('hostDifficulty').value;
+      const maxPlayers = parseInt(document.getElementById('maxPlayers').value);
+      const isPublic = document.getElementById('publicServer').checked;
+      const locked = document.getElementById('lockedServer').checked;
+      const password = locked ? document.getElementById('serverPassword').value : null;
+      
+      socket.emit('hostServer', {
+        name,
+        difficulty,
+        maxPlayers,
+        isPublic,
+        locked,
+        password,
+        playerName
+      });
+    }
+
+    function joinServer(id) {
+      if (!socket || !socket.connected) {
+        alert('Not connected to server!');
+        return;
+      }
+      
+      const server = mockServers.find(s => s.id === id);
+      if (server && server.locked) {
+        const password = prompt('This server is locked. Enter password:');
+        socket.emit('joinServer', {serverId: id, playerName, password});
+      } else {
+        socket.emit('joinServer', {serverId: id, playerName});
+      }
+    }
+
+    function showLobby() {
+      updateLobbyDisplay();
+      showScreen('lobbyScreen');
+    }
+    
+    function updateLobbyDisplay() {
+      document.getElementById('lobbyServerName').textContent = currentLobby.name;
+      document.getElementById('lobbyDifficulty').textContent = currentLobby.difficulty.toUpperCase();
+      
+      const playerList = document.getElementById('playerListContainer');
+      playerList.innerHTML = currentLobby.players.map(p => 
+        `<div class="player-item ${p.isHost ? 'host' : ''}">${p.name}${p.isHost ? ' (Host)' : ''}</div>`
+      ).join('');
+      
+      document.getElementById('startGameBtn').style.display = isHost ? 'block' : 'none';
+    }
+
+    function leaveLobby() {
+      if (socket && socket.connected) {
+        socket.emit('leaveLobby');
+      }
+      currentLobby = null;
+      isHost = false;
+      showScreen('multiplayerMenu');
+    }
+    
+    function startMultiplayerGame() {
+      if (socket && socket.connected && isHost) {
+        socket.emit('startGame');
+      }
+    }
+
+    // Game variables
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let game = null;
+    let animationId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    const towerTypes = {
+      gunner: {cost: 50, range: 120, damage: 10, fireRate: 2000, color: '#43B581', projectileSpeed: 6},
+      sniper: {cost: 100, range: 250, damage: 20, fireRate: 3000, color: '#F04747', projectileSpeed: 10},
+      wizard: {cost: 120, range: 100, damage: 2, fireRate: 2000, color: '#7289DA', poison: true, projectileSpeed: 4},
+      rifle: {cost: 80, range: 140, damage: 10, fireRate: 500, bullets: 2, color: '#FAA61A', projectileSpeed: 7}
+    };
+
+    const difficultySettings = {
+      easy: {startGold: 300, startLives: 30, enemyHpMult: 0.7, enemySpeedMult: 0.8},
+      normal: {startGold: 200, startLives: 20, enemyHpMult: 1, enemySpeedMult: 1},
+      hard: {startGold: 150, startLives: 15, enemyHpMult: 1.3, enemySpeedMult: 1.2},
+      expert: {startGold: 100, startLives: 10, enemyHpMult: 1.6, enemySpeedMult: 1.4}
+    };
+
+    function startGame(difficulty) {
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      const settings = difficultySettings[difficulty];
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      
+      game = {
+        difficulty: difficulty,
+        gold: settings.startGold,
+        lives: settings.startLives,
+        wave: 1,
+        towers: [],
+        enemies: [],
+        projectiles: [],
+        selectedTower: null,
+        waveActive: false,
+        enemiesSpawned: 0,
+        enemiesInWave: 10,
+        path: generatePath(),
+        settings: settings,
+        bossSpawned: false
+      };
+      
+      showScreen('gameScreen');
+      updateHUD();
+      gameLoop();
+    }
+
+    function generatePath() {
+      const w = canvas.width;
+      const h = canvas.height;
+      return [
+        {x: -50, y: h * 0.2},
+        {x: w * 0.25, y: h * 0.2},
+        {x: w * 0.25, y: h * 0.6},
+        {x: w * 0.5, y: h * 0.6},
+        {x: w * 0.5, y: h * 0.3},
+        {x: w * 0.75, y: h * 0.3},
+        {x: w * 0.75, y: h * 0.7},
+        {x: w + 50, y: h * 0.7}
+      ];
+    }
+
+    function startWave() {
+      game.waveActive = true;
+      game.enemiesSpawned = 0;
+      game.bossSpawned = false;
+      document.getElementById('startWaveBtn').disabled = true;
+      
+      const spawnInterval = setInterval(() => {
+        if (game.enemiesSpawned < game.enemiesInWave) {
+          spawnEnemy();
+        } else {
+          clearInterval(spawnInterval);
+        }
+      }, 800);
+    }
+
+    function spawnEnemy() {
+      const types = ['zombie', 'speed', 'tank'];
+      let type = types[Math.floor(Math.random() * types.length)];
+      
+      // Boss every 10 waves
+      if (game.wave % 10 === 0 && !game.bossSpawned) {
+        type = 'boss';
+        game.bossSpawned = true;
+      }
+      
+      // King has 5% chance on wave 15+
+      if (game.wave >= 15 && Math.random() < 0.05) {
+        type = 'king';
+      }
+      
+      const enemyStats = {
+        zombie: {hp: 50, speed: 1.5, reward: 10, size: 12, color: '#95a5a6'},
+        speed: {hp: 30, speed: 3, reward: 15, size: 10, color: '#3498db'},
+        tank: {hp: 150, speed: 0.8, reward: 30, size: 18, color: '#e74c3c'},
+        boss: {hp: 500 + (Math.floor(game.wave / 10) - 1) * 300, speed: 0.6, reward: 100, size: 25, color: '#8e44ad'},
+        king: {hp: 300, speed: 1, reward: 80, size: 22, color: '#f39c12', isKing: true}
+      };
+      
+      const stats = enemyStats[type];
+      const mult = game.settings.enemyHpMult;
+      const speedMult = game.settings.enemySpeedMult;
+      
+      game.enemies.push({
+        type: type,
+        x: game.path[0].x,
+        y: game.path[0].y,
+        pathIndex: 0,
+        hp: stats.hp * mult * (1 + game.wave * 0.1),
+        maxHp: stats.hp * mult * (1 + game.wave * 0.1),
+        speed: stats.speed * speedMult,
+        reward: stats.reward,
+        size: stats.size,
+        color: stats.color,
+        isKing: stats.isKing || false,
+        lastSpawn: Date.now(),
+        poisoned: false,
+        poisonTicks: 0
+      });
+      
+      game.enemiesSpawned++;
+    }
+
+    function updateEnemies() {
+      for (let i = game.enemies.length - 1; i >= 0; i--) {
+        const e = game.enemies[i];
+        
+        // King spawning
+        if (e.isKing && Date.now() - e.lastSpawn > 5000) {
+          e.lastSpawn = Date.now();
+          const spawnType = Math.random() < 0.3 ? 'tank' : 'zombie';
+          const stats = spawnType === 'tank' ? 
+            {hp: 150, speed: 0.8, reward: 30, size: 18, color: '#e74c3c'} :
+            {hp: 50, speed: 1.5, reward: 10, size: 12, color: '#95a5a6'};
+          
+          game.enemies.push({
+            type: spawnType,
+            x: e.x,
+            y: e.y,
+            pathIndex: e.pathIndex,
+            hp: stats.hp,
+            maxHp: stats.hp,
+            speed: stats.speed,
+            reward: stats.reward,
+            size: stats.size,
+            color: stats.color,
+            poisoned: false,
+            poisonTicks: 0
+          });
+        }
+        
+        // Poison damage
+        if (e.poisoned && e.poisonTicks > 0) {
+          if (Date.now() % 500 < 16) {
+            e.hp -= 2;
+            e.poisonTicks--;
+          }
+        }
+        
+        // Movement
+        if (e.pathIndex < game.path.length - 1) {
+          const target = game.path[e.pathIndex + 1];
+          const dx = target.x - e.x;
+          const dy = target.y - e.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < e.speed) {
+            e.pathIndex++;
+          } else {
+            e.x += (dx / dist) * e.speed;
+            e.y += (dy / dist) * e.speed;
+          }
+        } else {
+          game.lives--;
+          game.enemies.splice(i, 1);
+          updateHUD();
+          if (game.lives <= 0) {
+            endGame();
+          }
+        }
+        
+        // Death
+        if (e.hp <= 0) {
+          game.gold += e.reward;
+          game.enemies.splice(i, 1);
+          updateHUD();
+        }
+      }
+    }
+
+    function updateTowers() {
+      const now = Date.now();
+      game.towers.forEach(t => {
+        if (now - t.lastFire >= t.fireRate) {
+          let target = null;
+          let maxProgress = -1;
+          
+          game.enemies.forEach(e => {
+            const dist = Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2);
+            if (dist <= t.range && e.pathIndex > maxProgress) {
+              maxProgress = e.pathIndex;
+              target = e;
+            }
+          });
+          
+          if (target) {
+            const bullets = t.bullets || 1;
+            for (let i = 0; i < bullets; i++) {
+              setTimeout(() => {
+                game.projectiles.push({
+                  x: t.x,
+                  y: t.y,
+                  targetX: target.x,
+                  targetY: target.y,
+                  target: target,
+                  damage: t.damage,
+                  speed: t.projectileSpeed,
+                  color: t.color,
+                  poison: t.poison
+                });
+              }, i * 100);
+            }
+            t.lastFire = now;
+          }
+        }
+      });
+    }
+
+    function updateProjectiles() {
+      for (let i = game.projectiles.length - 1; i >= 0; i--) {
+        const p = game.projectiles[i];
+        const dx = p.targetX - p.x;
+        const dy = p.targetY - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < p.speed) {
+          if (p.target && game.enemies.includes(p.target)) {
+            p.target.hp -= p.damage;
+            if (p.poison) {
+              p.target.poisoned = true;
+              p.target.poisonTicks = 5;
+            }
+          }
+          game.projectiles.splice(i, 1);
+        } else {
+          p.x += (dx / dist) * p.speed;
+          p.y += (dy / dist) * p.speed;
+        }
+      }
+    }
+
+    function drawPath() {
+      ctx.strokeStyle = '#4a5568';
+      ctx.lineWidth = 80;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(game.path[0].x, game.path[0].y);
+      for (let i = 1; i < game.path.length; i++) {
+        ctx.lineTo(game.path[i].x, game.path[i].y);
+      }
+      ctx.stroke();
+    }
+
+    function drawEnemies() {
+      game.enemies.forEach(e => {
+        ctx.fillStyle = e.color;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        if (e.isKing) {
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 16px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('👑', e.x, e.y - e.size - 5);
+        }
+        
+        if (e.poisoned) {
+          ctx.fillStyle = '#7289DA';
+          ctx.font = 'bold 12px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('☠', e.x, e.y + e.size + 12);
+        }
+        
+        // Health bar
+        const barWidth = e.size * 2;
+        const barHeight = 5;
+        ctx.fillStyle = '#2F3136';
+        ctx.fillRect(e.x - barWidth/2, e.y - e.size - 10, barWidth, barHeight);
+        ctx.fillStyle = '#43B581';
+        ctx.fillRect(e.x - barWidth/2, e.y - e.size - 10, barWidth * (e.hp / e.maxHp), barHeight);
+      });
+    }
+
+    function drawTowers() {
+      game.towers.forEach(t => {
+        ctx.fillStyle = t.color;
+        ctx.fillRect(t.x - 20, t.y - 20, 40, 40);
+        ctx.strokeStyle = '#2F3136';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(t.x - 20, t.y - 20, 40, 40);
+        
+        // Range indicator when selected
+        if (game.selectedTower === t.type) {
+          ctx.strokeStyle = t.color + '40';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, t.range, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      });
+    }
+
+    function drawProjectiles() {
+      game.projectiles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function gameLoop() {
+      if (!game) return;
+      
+      ctx.fillStyle = document.body.classList.contains('light-mode') ? '#f0f4f8' : '#36393F';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      drawPath();
+      updateEnemies();
+      updateTowers();
+      updateProjectiles();
+      drawEnemies();
+      drawTowers();
+      drawProjectiles();
+      
+      if (game.waveActive && game.enemies.length === 0 && game.enemiesSpawned >= game.enemiesInWave) {
+        game.waveActive = false;
+        game.wave++;
+        game.enemiesInWave += 5;
+        game.enemiesSpawned = 0;
+        game.gold += 50;
+        updateHUD();
+        document.getElementById('startWaveBtn').disabled = false;
+      }
+      
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function placeTower(x, y, type) {
+      const specs = towerTypes[type];
+      game.towers.push({
+        x: x,
+        y: y,
+        type: type,
+        range: specs.range,
+        damage: specs.damage,
+        fireRate: specs.fireRate,
+        lastFire: 0,
+        color: specs.color,
+        poison: specs.poison || false,
+        bullets: specs.bullets || 1,
+        projectileSpeed: specs.projectileSpeed
+      });
+      game.gold -= specs.cost;
+      updateHUD();
+    }
+
+    canvas.addEventListener('click', (e) => {
+      if (!game || !game.selectedTower) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      
+      // Check if on path
+      const onPath = game.path.some((p, i) => {
+        if (i === 0) return false;
+        const prev = game.path[i - 1];
+        const d = distanceToSegment(x, y, prev.x, prev.y, p.x, p.y);
+        return d < 50;
+      });
+      
+      if (!onPath) {
+        const cost = towerTypes[game.selectedTower].cost;
+        if (game.gold >= cost) {
+          placeTower(x, y, game.selectedTower);
+          document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('selected'));
+          game.selectedTower = null;
+        }
+      }
+    });
+
+    function distanceToSegment(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len = dx * dx + dy * dy;
+      let t = ((px - x1) * dx + (py - y1) * dy) / len;
+      t = Math.max(0, Math.min(1, t));
+      const nearX = x1 + t * dx;
+      const nearY = y1 + t * dy;
+      return Math.sqrt((px - nearX) ** 2 + (py - nearY) ** 2);
+    }
+
+    document.querySelectorAll('.tower-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tower = this.dataset.tower;
+        document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        game.selectedTower = tower;
+      });
+    });
+
+    function updateHUD() {
+      if (!game) return;
+      document.getElementById('gold').textContent = game.gold;
+      document.getElementById('lives').textContent = game.lives;
+      document.getElementById('wave').textContent = game.wave;
+      
+      document.querySelectorAll('.tower-btn').forEach(btn => {
+        const type = btn.dataset.tower;
+        if (type && towerTypes[type]) {
+          btn.disabled = game.gold < towerTypes[type].cost;
+        }
+      });
+    }
+
+    function endGame() {
+      cancelAnimationFrame(animationId);
+      alert(`Game Over! You survived ${game.wave} waves!`);
+      leaveGame();
+    }
+
+    function leaveGame() {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      game = null;
+      showScreen('mainMenu');
+    }
+  </script>
+</body>
+</html>
